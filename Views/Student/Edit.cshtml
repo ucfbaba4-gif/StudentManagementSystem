@@ -1,0 +1,27 @@
+@model StudentManagement.Models.Student
+
+<h2>Modifier un étudiant</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Age"></label>
+        <input asp-for="Age" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Enregistrer
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Retour
+    </a>
+
+</form>
