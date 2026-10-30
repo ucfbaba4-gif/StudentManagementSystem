@@ -1,0 +1,121 @@
+@baseUrl = http://localhost:5119
+
+
+##################################################
+### CATEGORY
+##################################################
+
+### GET ALL CATEGORIES
+GET {{baseUrl}}/api/category
+
+
+### GET CATEGORY BY ID
+GET {{baseUrl}}/api/category/1
+
+
+### GET PRODUCTS BY CATEGORY
+GET {{baseUrl}}/api/category/1/products
+
+
+##################################################
+### PRODUCTS
+##################################################
+
+### GET ALL PRODUCTS
+GET {{baseUrl}}/api/product
+
+
+### SEARCH PRODUCTS
+GET {{baseUrl}}/api/product/search?name=Laptop
+
+
+### GET PRODUCT BY ID
+GET {{baseUrl}}/api/product/2
+
+
+##################################################
+### ORDERS
+##################################################
+
+### GET ALL ORDERS
+GET {{baseUrl}}/api/order
+
+
+### CREATE ORDER
+POST {{baseUrl}}/api/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 2,
+      "quantity": 1
+    }
+  ]
+}
+
+
+### GET ORDER BY ID
+GET {{baseUrl}}/api/order/1
+
+
+##################################################
+### ORDER STATUS
+##################################################
+
+### CONFIRM ORDER
+PUT http://localhost:5119/api/order/1/status
+Content-Type: application/json
+
+{
+  "status": "Confirmed"
+}
+
+
+### CHECK ORDER
+GET {{baseUrl}}/api/order/1
+
+
+### SHIP ORDER
+PUT {{baseUrl}}/api/order/1/status
+Content-Type: application/json
+
+"Shipped"
+
+
+### CHECK ORDER
+GET {{baseUrl}}/api/order/1
+
+
+### DELIVER ORDER
+PUT {{baseUrl}}/api/order/1/status
+Content-Type: application/json
+
+"Delivered"
+
+
+### CHECK ORDER
+GET {{baseUrl}}/api/order/1
+
+
+##################################################
+### INVALID STATUS TEST
+##################################################
+
+### INVALID STATUS
+PUT {{baseUrl}}/api/order/1/status
+Content-Type: application/json
+
+"SomethingWrong"
+
+
+##################################################
+### DELETE ORDER
+##################################################
+
+### DELETE ORDER
+DELETE {{baseUrl}}/api/order/1
+
+
+### VERIFY DELETE
+GET {{baseUrl}}/api/order/1

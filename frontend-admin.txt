@@ -1,0 +1,5247 @@
+﻿import React from "react";
+
+import {
+    BrowserRouter,
+    Link,
+    Route,
+    Routes,
+    useLocation,
+} from "react-router-dom";
+
+import {
+    CartProvider,
+    useCart,
+} from "./context/CartContext";
+
+import Home from "./pages/Home";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Orders from "./pages/Orders";
+
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminOrders from "./pages/AdminOrders";
+import AdminProducts from "./pages/AdminProducts";
+import AdminUsers from "./pages/AdminUsers";
+
+import OrderSuccess from "./pages/OrderSuccess";
+import AdminRoute from "./AdminRoute";
+
+import "./App.css";
+
+
+// =========================================================
+// NAVBAR
+// =========================================================
+
+function Navbar({ token, role, onLogout }) {
+
+    const { cartCount } = useCart();
+
+    return (
+        <header className="navbar">
+
+            {/* ================================================= */}
+            {/* LOGO */}
+            {/* ================================================= */}
+
+            <Link
+                to="/"
+                className="logo"
+            >
+                E-Commerce
+            </Link>
+
+
+            {/* ================================================= */}
+            {/* NAVIGATION */}
+            {/* ================================================= */}
+
+            <nav className="navbar-right">
+
+                {/* ================================================= */}
+                {/* LOGGED IN USER */}
+                {/* ================================================= */}
+
+                {token ? (
+
+                    <>
+
+                        {/* ================================ */}
+                        {/* USER ORDERS */}
+                        {/* ================================ */}
+
+                        <Link
+                            to="/orders"
+                            className="orders-link"
+                        >
+                            ðŸ“¦ Mes commandes
+                        </Link>
+
+
+                        {/* ================================ */}
+                        {/* ADMIN LINKS */}
+                        {/* ================================ */}
+
+                        {role === "Admin" && (
+
+                            <>
+
+                                {/* Dashboard */}
+
+                                <Link
+                                    to="/admin"
+                                    className="admin-link"
+                                >
+                                    ðŸ‘‘ Dashboard
+                                </Link>
+
+
+                                {/* Orders */}
+
+                                <Link
+                                    to="/admin/orders"
+                                    className="admin-link"
+                                >
+                                    ðŸ“¦ Commandes
+                                </Link>
+
+
+                                {/* Products */}
+
+                                <Link
+                                    to="/admin/products"
+                                    className="admin-link"
+                                >
+                                    ðŸ›ï¸ Produits
+                                </Link>
+
+
+                                {/* Users */}
+
+                                <Link
+                                    to="/admin/users"
+                                    className="admin-link"
+                                >
+                                    ðŸ‘¥ Utilisateurs
+                                </Link>
+
+                            </>
+
+                        )}
+
+
+                        {/* ================================ */}
+                        {/* LOGOUT */}
+                        {/* ================================ */}
+
+                        <button
+                            type="button"
+                            className="logout-button"
+                            onClick={onLogout}
+                        >
+                            DÃ©connexion
+                        </button>
+
+                    </>
+
+                ) : (
+
+                    /* ================================================= */
+                    /* NOT LOGGED IN */
+                    /* ================================================= */
+
+                    <>
+
+                        <Link
+                            to="/login"
+                            className="login-link"
+                        >
+                            Connexion
+                        </Link>
+
+
+                        <Link
+                            to="/register"
+                            className="login-link"
+                        >
+                            CrÃ©er un compte
+                        </Link>
+
+                    </>
+
+                )}
+
+
+                {/* ================================================= */}
+                {/* CART */}
+                {/* ================================================= */}
+
+                <Link
+                    to="/cart"
+                    className="cart-link"
+                >
+                    ðŸ›’ Panier ({cartCount})
+                </Link>
+
+            </nav>
+
+        </header>
+    );
+}
+
+
+// =========================================================
+// APP
+// =========================================================
+
+function App() {
+
+    // =====================================================
+    // AUTH STATE
+    // =====================================================
+
+    const [token, setToken] = React.useState(
+        () => localStorage.getItem("token")
+    );
+
+    const [role, setRole] = React.useState(
+        () => localStorage.getItem("role")
+    );
+
+
+    // =====================================================
+    // UPDATE AUTH
+    // =====================================================
+
+    const refreshAuth = () => {
+
+        const savedToken =
+            localStorage.getItem("token");
+
+        const savedRole =
+            localStorage.getItem("role");
+
+        setToken(savedToken);
+        setRole(savedRole);
+    };
+
+
+    // =====================================================
+    // LOGOUT
+    // =====================================================
+
+    const handleLogout = () => {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("user");
+
+        setToken(null);
+        setRole(null);
+
+        window.location.href = "/login";
+    };
+
+
+    return (
+
+        <BrowserRouter>
+
+            <CartProvider>
+
+                <div className="app">
+
+                    {/* ================================================= */}
+                    {/* NAVBAR */}
+                    {/* ================================================= */}
+
+                    <Navbar
+                        token={token}
+                        role={role}
+                        onLogout={handleLogout}
+                    />
+
+
+                    {/* ================================================= */}
+                    {/* ROUTES */}
+                    {/* ================================================= */}
+
+                    <Routes>
+
+
+                        {/* ================================================= */}
+                        {/* PUBLIC */}
+                        {/* ================================================= */}
+
+                        <Route
+                            path="/"
+                            element={<Home />}
+                        />
+
+
+                        <Route
+                            path="/login"
+                            element={
+                                <Login
+                                    onLogin={refreshAuth}
+                                />
+                            }
+                        />
+
+
+                        <Route
+                            path="/register"
+                            element={<Register />}
+                        />
+
+
+                        {/* ================================================= */}
+                        {/* USER */}
+                        {/* ================================================= */}
+
+                        <Route
+                            path="/cart"
+                            element={<Cart />}
+                        />
+
+
+                        <Route
+                            path="/checkout"
+                            element={<Checkout />}
+                        />
+
+
+                        <Route
+                            path="/orders"
+                            element={<Orders />}
+                        />
+
+
+                        <Route
+                            path="/order-success"
+                            element={<OrderSuccess />}
+                        />
+
+
+                        {/* ================================================= */}
+                        {/* ADMIN */}
+                        {/* ================================================= */}
+
+                        <Route
+                            element={<AdminRoute />}
+                        >
+
+                            <Route
+                                path="/admin"
+                                element={<AdminDashboard />}
+                            />
+
+
+                            <Route
+                                path="/admin/orders"
+                                element={<AdminOrders />}
+                            />
+
+
+                            <Route
+                                path="/admin/products"
+                                element={<AdminProducts />}
+                            />
+
+
+                            <Route
+                                path="/admin/users"
+                                element={<AdminUsers />}
+                            />
+
+                        </Route>
+
+                    </Routes>
+
+                </div>
+
+            </CartProvider>
+
+        </BrowserRouter>
+    );
+}
+
+
+export default App;
+/* =========================================================
+   ADMIN ORDERS DASHBOARD
+   ========================================================= */
+
+.admin-orders-page {
+    padding-bottom: 70px;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    color: #111827;
+}
+
+.admin-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.admin-refresh-button {
+    border: none;
+    background: #111827;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.admin-refresh-button:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   SEARCH + FILTER
+   ========================= */
+
+.admin-orders-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 220px 150px;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.admin-search-box,
+.admin-filter-box,
+.admin-page-size {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-search-box input,
+.admin-filter-box select,
+.admin-page-size select {
+    width: 100%;
+    box-sizing: border-box;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: white;
+    color: #111827;
+    font-size: 15px;
+    outline: none;
+}
+
+.admin-search-box input::placeholder {
+    color: #9ca3af;
+}
+
+.admin-search-box input:focus,
+.admin-filter-box select:focus,
+.admin-page-size select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* =========================
+   STATS
+   ========================= */
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.admin-stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.admin-stat-card span {
+    display: block;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.admin-stat-card strong {
+    display: block;
+    font-size: 28px;
+    color: #111827;
+}
+
+/* =========================
+   ERROR
+   ========================= */
+
+.admin-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 15px 18px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+/* =========================
+   ORDERS LIST
+   ========================= */
+
+.admin-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-order-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    transition: 0.2s ease;
+}
+
+.admin-order-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+    transform: translateY(-2px);
+}
+
+/* =========================
+   ORDER TOP
+   ========================= */
+
+.admin-order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-order-top h2 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #111827;
+}
+
+.admin-order-top p {
+    margin: 4px 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.admin-order-total {
+    text-align: right;
+}
+
+.admin-order-total span {
+    display: block;
+    color: #6b7280;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.admin-order-total strong {
+    font-size: 22px;
+    color: #2563eb;
+}
+
+/* =========================
+   ORDER ITEMS
+   ========================= */
+
+.admin-order-items {
+    padding: 5px 0;
+}
+
+.admin-order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 17px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-order-item:last-child {
+    border-bottom: none;
+}
+
+.admin-order-item strong {
+    color: #111827;
+}
+
+.admin-order-item p {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.admin-order-item > strong {
+    white-space: nowrap;
+}
+
+/* =========================
+   ORDER ACTIONS
+   ========================= */
+
+.admin-order-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.status-control {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.status-control label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.status-control select {
+    min-width: 190px;
+    padding: 11px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    background: white;
+    color: #111827;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+}
+
+.status-control select:focus {
+    border-color: #2563eb;
+}
+
+.status-control select:disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+}
+
+/* =========================
+   DELETE BUTTON
+   ========================= */
+
+.delete-order-button {
+    border: none;
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 11px 16px;
+    border-radius: 9px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.delete-order-button:hover {
+    background: #fee2e2;
+}
+
+/* =========================
+   PAGINATION
+   ========================= */
+
+.admin-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 35px;
+}
+
+.admin-pagination button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.admin-pagination button:hover:not(:disabled) {
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.admin-pagination button.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.admin-pagination button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.admin-pagination-info {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 10px;
+}
+
+/* =========================
+   NO ORDERS
+   ========================= */
+
+.admin-no-orders {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.admin-no-orders h2 {
+    margin: 0 0 10px;
+    color: #111827;
+}
+
+.admin-no-orders p {
+    margin: 0;
+    color: #6b7280;
+}
+
+/* =========================
+   RESPONSIVE TABLET
+   ========================= */
+
+@media (max-width: 900px) {
+
+    .admin-orders-toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-search-box {
+        grid-column: 1 / -1;
+    }
+
+    .admin-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-order-top {
+        flex-direction: column;
+    }
+
+    .admin-order-total {
+        text-align: left;
+    }
+}
+
+/* =========================
+   RESPONSIVE MOBILE
+   ========================= */
+
+@media (max-width: 600px) {
+
+    .admin-orders-page {
+        padding: 30px 15px 50px;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-header h1 {
+        font-size: 26px;
+    }
+
+    .admin-refresh-button {
+        width: 100%;
+    }
+
+    .admin-orders-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-search-box {
+        grid-column: auto;
+    }
+
+    .admin-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .admin-stat-card {
+        padding: 16px;
+    }
+
+    .admin-stat-card strong {
+        font-size: 23px;
+    }
+
+    .admin-order-card {
+        padding: 17px;
+    }
+
+    .admin-order-top h2 {
+        font-size: 18px;
+    }
+
+    .admin-order-total strong {
+        font-size: 19px;
+    }
+
+    .admin-order-item {
+        align-items: flex-start;
+    }
+
+    .admin-order-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .status-control select {
+        width: 100%;
+    }
+
+    .delete-order-button {
+        width: 100%;
+    }
+
+    .admin-pagination {
+        flex-wrap: wrap;
+    }
+
+    .admin-pagination-info {
+        width: 100%;
+        text-align: center;
+        order: -1;
+        margin-bottom: 8px;
+    }
+    
+/* =========================================================
+   ADMIN ORDERS DASHBOARD
+   ========================================================= */
+
+.admin-orders-page {
+    padding-bottom: 60px;
+}
+
+/* ============================= */
+/* ADMIN HEADER */
+/* ============================= */
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    color: #111827;
+}
+
+.admin-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+.admin-refresh-button {
+    border: none;
+    background: #111827;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.admin-refresh-button:hover {
+    background: #2563eb;
+}
+
+/* ============================= */
+/* ERROR */
+/* ============================= */
+
+.admin-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 15px 18px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+/* ============================= */
+/* STATISTICS */
+/* ============================= */
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.admin-stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: 0.2s ease;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.admin-stat-card span {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.admin-stat-card strong {
+    font-size: 28px;
+    color: #111827;
+}
+
+/* ============================= */
+/* SEARCH + FILTER TOOLBAR */
+/* ============================= */
+
+.admin-orders-toolbar {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* SEARCH */
+
+.admin-search-box {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: #f8fafc;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 0 12px;
+}
+
+.admin-search-box span {
+    font-size: 18px;
+}
+
+.admin-search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+
+    padding: 12px 5px;
+    font-size: 14px;
+    color: #111827;
+}
+
+.admin-search-box input::placeholder {
+    color: #9ca3af;
+}
+
+.admin-search-box:focus-within {
+    border-color: #2563eb;
+    background: white;
+}
+
+.admin-search-box button {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+
+    font-size: 16px;
+    cursor: pointer;
+
+    padding: 5px;
+}
+
+.admin-search-box button:hover {
+    color: #dc2626;
+}
+
+/* FILTER */
+
+.admin-filter-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-filter-box label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.admin-filter-box select {
+    border: 1px solid #d1d5db;
+    background: white;
+    padding: 11px 14px;
+    border-radius: 9px;
+    outline: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.admin-filter-box select:focus {
+    border-color: #2563eb;
+}
+
+/* ============================= */
+/* RESULTS INFO */
+/* ============================= */
+
+.admin-results-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    margin-bottom: 18px;
+
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.admin-results-info strong {
+    color: #111827;
+}
+
+/* ============================= */
+/* ORDERS LIST */
+/* ============================= */
+
+.admin-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ============================= */
+/* ORDER CARD */
+/* ============================= */
+
+.admin-order-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    transition: 0.2s ease;
+}
+
+.admin-order-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================= */
+/* ORDER TOP */
+/* ============================= */
+
+.admin-order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 20px;
+
+    padding: 22px;
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-order-top h2 {
+    margin: 0 0 8px;
+
+    font-size: 20px;
+    color: #111827;
+}
+
+.admin-order-top p {
+    margin: 4px 0;
+
+    color: #6b7280;
+    font-size: 13px;
+}
+
+/* TOTAL */
+
+.admin-order-total {
+    text-align: right;
+}
+
+.admin-order-total span {
+    display: block;
+
+    color: #6b7280;
+    font-size: 13px;
+
+    margin-bottom: 5px;
+}
+
+.admin-order-total strong {
+    font-size: 21px;
+    color: #2563eb;
+}
+
+/* ============================= */
+/* ORDER ITEMS */
+/* ============================= */
+
+.admin-order-items {
+    padding: 5px 22px;
+}
+
+.admin-order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 15px 0;
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-order-item:last-child {
+    border-bottom: none;
+}
+
+.admin-order-item strong {
+    color: #111827;
+    font-size: 15px;
+}
+
+.admin-order-item p {
+    margin: 5px 0 0;
+
+    color: #6b7280;
+    font-size: 13px;
+}
+
+/* ============================= */
+/* ORDER ACTIONS */
+/* ============================= */
+
+.admin-order-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 18px 22px;
+
+    background: #f8fafc;
+
+    border-top: 1px solid #f1f5f9;
+}
+
+/* STATUS */
+
+.status-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-control label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.status-control select {
+    min-width: 150px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    background: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    outline: none;
+    cursor: pointer;
+}
+
+.status-control select:focus {
+    border-color: #2563eb;
+}
+
+.status-control select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* DELETE */
+
+.delete-order-button {
+    border: none;
+
+    background: #fef2f2;
+    color: #dc2626;
+
+    padding: 10px 15px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.delete-order-button:hover {
+    background: #fee2e2;
+}
+
+/* ============================= */
+/* EMPTY STATE */
+/* ============================= */
+
+.admin-empty-state {
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    padding: 70px 20px;
+
+    text-align: center;
+}
+
+.admin-empty-state > div {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.admin-empty-state h2 {
+    margin: 0 0 10px;
+
+    color: #111827;
+}
+
+.admin-empty-state p {
+    color: #6b7280;
+
+    margin: 0 0 22px;
+}
+
+.admin-empty-state button {
+    border: none;
+
+    background: #111827;
+    color: white;
+
+    padding: 11px 18px;
+
+    border-radius: 9px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.admin-empty-state button:hover {
+    background: #2563eb;
+}
+
+/* ============================= */
+/* PAGINATION */
+/* ============================= */
+
+.admin-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 15px;
+
+    margin-top: 30px;
+}
+
+.admin-pagination > button {
+    border: 1px solid #d1d5db;
+
+    background: white;
+    color: #374151;
+
+    padding: 10px 15px;
+
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.admin-pagination > button:hover:not(:disabled) {
+    background: #f1f5f9;
+}
+
+.admin-pagination > button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* PAGE NUMBERS */
+
+.pagination-pages {
+    display: flex;
+    gap: 6px;
+}
+
+.pagination-pages button {
+    min-width: 38px;
+    height: 38px;
+
+    border: 1px solid #d1d5db;
+
+    background: white;
+    color: #374151;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.pagination-pages button:hover {
+    background: #f1f5f9;
+}
+
+.pagination-pages button.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* ============================= */
+/* PAGINATION INFO */
+/* ============================= */
+
+.admin-pagination-info {
+    text-align: center;
+
+    margin-top: 14px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+.admin-pagination-info strong {
+    color: #111827;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .admin-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-orders-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-filter-box {
+        justify-content: space-between;
+    }
+
+    .admin-filter-box select {
+        flex: 1;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-refresh-button {
+        width: 100%;
+    }
+
+    .admin-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .admin-stat-card {
+        padding: 16px;
+    }
+
+    .admin-stat-card strong {
+        font-size: 24px;
+    }
+
+    .admin-results-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .admin-order-top {
+        flex-direction: column;
+    }
+
+    .admin-order-total {
+        text-align: left;
+    }
+
+    .admin-order-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .status-control {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .status-control select {
+        width: 100%;
+    }
+
+    .delete-order-button {
+        width: 100%;
+    }
+
+    .admin-pagination {
+        flex-wrap: wrap;
+    }
+
+    .pagination-pages {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 450px) {
+
+    .admin-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-order-top,
+    .admin-order-items,
+    .admin-order-actions {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .admin-search-box input {
+        font-size: 13px;
+    }
+}
+
+}
+import { Navigate, Outlet } from "react-router-dom";
+
+function AdminRoute() {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    console.log("ADMIN ROUTE TOKEN:", token ? "FOUND" : "NOT FOUND");
+    console.log("ADMIN ROUTE ROLE:", role);
+
+    // No login
+    if (!token) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Logged in but not Admin
+    if (role !== "Admin") {
+        return <Navigate to="/" replace />;
+    }
+
+    // Admin
+    return <Outlet />;
+}
+
+export default AdminRoute;
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
+function AdminDashboard() {
+    const navigate = useNavigate();
+
+    const [users, setUsers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [orders, setOrders] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    // ==========================================
+    // CHECK ADMIN
+    // ==========================================
+
+    const checkAdmin = () => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token) {
+            navigate("/login", { replace: true });
+            return false;
+        }
+
+        if (role && role !== "Admin") {
+            navigate("/", { replace: true });
+            return false;
+        }
+
+        return true;
+    };
+
+    // ==========================================
+    // NORMALIZE API RESPONSE
+    // ==========================================
+
+    const getArrayData = (response) => {
+        if (Array.isArray(response?.data)) {
+            return response.data;
+        }
+
+        if (Array.isArray(response?.data?.value)) {
+            return response.data.value;
+        }
+
+        if (Array.isArray(response?.data?.items)) {
+            return response.data.items;
+        }
+
+        return [];
+    };
+
+    // ==========================================
+    // LOAD DASHBOARD
+    // ==========================================
+
+    const loadDashboard = useCallback(async () => {
+        if (!checkAdmin()) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError("");
+
+            console.log("=================================");
+            console.log("LOADING ADMIN DASHBOARD");
+            console.log("=================================");
+
+            const [
+                usersResponse,
+                productsResponse,
+                ordersResponse
+            ] = await Promise.all([
+                api.get("/User"),
+                api.get("/Product"),
+                api.get("/order")
+            ]);
+
+            console.log("USERS RESPONSE:", usersResponse.data);
+            console.log("PRODUCTS RESPONSE:", productsResponse.data);
+            console.log("ORDERS RESPONSE:", ordersResponse.data);
+
+            const usersData = getArrayData(usersResponse);
+            const productsData = getArrayData(productsResponse);
+            const ordersData = getArrayData(ordersResponse);
+
+            console.log("USERS:", usersData);
+            console.log("PRODUCTS:", productsData);
+            console.log("ORDERS:", ordersData);
+
+            setUsers(usersData);
+            setProducts(productsData);
+            setOrders(ordersData);
+
+        } catch (err) {
+            console.error("=================================");
+            console.error("DASHBOARD ERROR");
+            console.error(err);
+            console.error("=================================");
+
+            const status = err.response?.status;
+
+            if (status === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+
+                navigate("/login", {
+                    replace: true
+                });
+
+                return;
+            }
+
+            if (status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Vous devez Ãªtre administrateur."
+                );
+
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                "Impossible de rÃ©cupÃ©rer les donnÃ©es du dashboard."
+            );
+
+        } finally {
+            setLoading(false);
+        }
+    }, [navigate]);
+
+    // ==========================================
+    // INITIAL LOAD
+    // ==========================================
+
+    useEffect(() => {
+        loadDashboard();
+    }, [loadDashboard]);
+
+    // ==========================================
+    // STATISTICS
+    // ==========================================
+
+    const totalUsers = users.length;
+
+    const totalProducts = products.length;
+
+    const totalOrders = orders.length;
+
+    const pendingOrders = orders.filter(
+        (order) =>
+            String(order.status || "").toLowerCase() === "pending"
+    ).length;
+
+    const confirmedOrders = orders.filter(
+        (order) =>
+            String(order.status || "").toLowerCase() === "confirmed"
+    ).length;
+
+    const shippedOrders = orders.filter(
+        (order) =>
+            String(order.status || "").toLowerCase() === "shipped"
+    ).length;
+
+    const deliveredOrders = orders.filter(
+        (order) =>
+            String(order.status || "").toLowerCase() === "delivered"
+    ).length;
+
+    const cancelledOrders = orders.filter(
+        (order) =>
+            String(order.status || "").toLowerCase() === "cancelled"
+    ).length;
+
+    const totalRevenue = orders
+        .filter(
+            (order) =>
+                String(order.status || "").toLowerCase() !== "cancelled"
+        )
+        .reduce(
+            (total, order) =>
+                total + Number(order.totalAmount || 0),
+            0
+        );
+
+    // ==========================================
+    // RECENT ORDERS
+    // ==========================================
+
+    const recentOrders = [...orders]
+        .sort((a, b) => {
+            const dateA = new Date(a.orderDate || 0).getTime();
+            const dateB = new Date(b.orderDate || 0).getTime();
+
+            return dateB - dateA;
+        })
+        .slice(0, 5);
+
+    // ==========================================
+    // LOW STOCK
+    // ==========================================
+
+    const lowStockProducts = products
+        .filter(
+            (product) =>
+                Number(product.stock || 0) <= 5
+        )
+        .slice(0, 5);
+
+    // ==========================================
+    // FORMAT DATE
+    // ==========================================
+
+    const formatDate = (date) => {
+        if (!date) {
+            return "Date inconnue";
+        }
+
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "Date inconnue";
+        }
+
+        return parsedDate.toLocaleString("fr-FR");
+    };
+
+    // ==========================================
+    // FORMAT MONEY
+    // ==========================================
+
+    const formatMoney = (value) => {
+        return Number(value || 0).toFixed(2);
+    };
+
+    // ==========================================
+    // LOADING
+    // ==========================================
+
+    if (loading) {
+        return (
+            <main className="container admin-dashboard-page">
+
+                <div className="admin-header">
+
+                    <div>
+                        <h1>
+                            Admin Dashboard
+                        </h1>
+
+                        <p>
+                            Chargement des donnÃ©es...
+                        </p>
+                    </div>
+
+                </div>
+
+                <div className="admin-loading">
+                    Chargement...
+                </div>
+
+            </main>
+        );
+    }
+
+    // ==========================================
+    // ERROR
+    // ==========================================
+
+    if (error) {
+        return (
+            <main className="container admin-dashboard-page">
+
+                <div className="admin-header">
+
+                    <div>
+                        <h1>
+                            Admin Dashboard
+                        </h1>
+
+                        <p>
+                            Gestion de votre boutique
+                        </p>
+                    </div>
+
+                    <button
+                        className="admin-refresh-button"
+                        onClick={loadDashboard}
+                    >
+                        ðŸ”„ Actualiser
+                    </button>
+
+                </div>
+
+                <div className="admin-error">
+                    {error}
+                </div>
+
+            </main>
+        );
+    }
+
+    // ==========================================
+    // DASHBOARD
+    // ==========================================
+
+    return (
+        <main className="container admin-dashboard-page">
+
+            {/* ======================================
+                HEADER
+            ====================================== */}
+
+            <div className="admin-header">
+
+                <div>
+
+                    <h1>
+                        Admin Dashboard
+                    </h1>
+
+                    <p>
+                        Gestion et statistiques de votre boutique
+                    </p>
+
+                </div>
+
+                <button
+                    className="admin-refresh-button"
+                    onClick={loadDashboard}
+                >
+                    ðŸ”„ Actualiser
+                </button>
+
+            </div>
+
+            {/* ======================================
+                MAIN STATISTICS
+            ====================================== */}
+
+            <div className="admin-stats">
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        ðŸ‘¥ Utilisateurs
+                    </span>
+
+                    <strong>
+                        {totalUsers}
+                    </strong>
+
+                    <small>
+                        Utilisateurs inscrits
+                    </small>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        ðŸ›ï¸ Produits
+                    </span>
+
+                    <strong>
+                        {totalProducts}
+                    </strong>
+
+                    <small>
+                        Produits disponibles
+                    </small>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        ðŸ“¦ Commandes
+                    </span>
+
+                    <strong>
+                        {totalOrders}
+                    </strong>
+
+                    <small>
+                        Commandes totales
+                    </small>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        ðŸ’° Chiffre d'affaires
+                    </span>
+
+                    <strong>
+                        {formatMoney(totalRevenue)} DH
+                    </strong>
+
+                    <small>
+                        Hors commandes annulÃ©es
+                    </small>
+
+                </div>
+
+            </div>
+
+            {/* ======================================
+                ORDER STATUS
+            ====================================== */}
+
+            <section className="admin-dashboard-section">
+
+                <div className="admin-section-header">
+
+                    <div>
+
+                        <h2>
+                            ðŸ“¦ Statut des commandes
+                        </h2>
+
+                        <p>
+                            Vue globale des commandes
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div className="admin-order-stats">
+
+                    <div className="admin-order-stat pending">
+
+                        <span>
+                            Pending
+                        </span>
+
+                        <strong>
+                            {pendingOrders}
+                        </strong>
+
+                    </div>
+
+                    <div className="admin-order-stat confirmed">
+
+                        <span>
+                            Confirmed
+                        </span>
+
+                        <strong>
+                            {confirmedOrders}
+                        </strong>
+
+                    </div>
+
+                    <div className="admin-order-stat shipped">
+
+                        <span>
+                            Shipped
+                        </span>
+
+                        <strong>
+                            {shippedOrders}
+                        </strong>
+
+                    </div>
+
+                    <div className="admin-order-stat delivered">
+
+                        <span>
+                            Delivered
+                        </span>
+
+                        <strong>
+                            {deliveredOrders}
+                        </strong>
+
+                    </div>
+
+                    <div className="admin-order-stat cancelled">
+
+                        <span>
+                            Cancelled
+                        </span>
+
+                        <strong>
+                            {cancelledOrders}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            {/* ======================================
+                QUICK ACTIONS
+            ====================================== */}
+
+            <section className="admin-dashboard-section">
+
+                <div className="admin-section-header">
+
+                    <div>
+
+                        <h2>
+                            âš¡ Actions rapides
+                        </h2>
+
+                        <p>
+                            AccÃ©der rapidement aux sections administrateur
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div className="admin-dashboard-actions">
+
+                    <button
+                        onClick={() =>
+                            navigate("/admin/orders")
+                        }
+                    >
+
+                        <span>
+                            ðŸ“¦
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Commandes
+                            </strong>
+
+                            <small>
+                                GÃ©rer les commandes
+                            </small>
+
+                        </div>
+
+                    </button>
+
+                    <button
+                        onClick={() =>
+                            navigate("/admin/products")
+                        }
+                    >
+
+                        <span>
+                            ðŸ›ï¸
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Produits
+                            </strong>
+
+                            <small>
+                                GÃ©rer les produits
+                            </small>
+
+                        </div>
+
+                    </button>
+
+                    <button
+                        onClick={() =>
+                            navigate("/admin/users")
+                        }
+                    >
+
+                        <span>
+                            ðŸ‘¥
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Utilisateurs
+                            </strong>
+
+                            <small>
+                                GÃ©rer les utilisateurs
+                            </small>
+
+                        </div>
+
+                    </button>
+
+                </div>
+
+            </section>
+
+            {/* ======================================
+                RECENT ORDERS + LOW STOCK
+            ====================================== */}
+
+            <div className="admin-dashboard-grid">
+
+                {/* ==================================
+                    RECENT ORDERS
+                ================================== */}
+
+                <section className="admin-dashboard-section">
+
+                    <div className="admin-section-header">
+
+                        <div>
+
+                            <h2>
+                                ðŸ• Commandes rÃ©centes
+                            </h2>
+
+                            <p>
+                                Les 5 derniÃ¨res commandes
+                            </p>
+
+                        </div>
+
+                        <button
+                            onClick={() =>
+                                navigate("/admin/orders")
+                            }
+                        >
+                            Voir tout â†’
+                        </button>
+
+                    </div>
+
+                    {recentOrders.length === 0 ? (
+
+                        <div className="admin-empty-state">
+
+                            <div>
+                                ðŸ“¦
+                            </div>
+
+                            <h3>
+                                Aucune commande
+                            </h3>
+
+                            <p>
+                                Il n'y a aucune commande pour le moment.
+                            </p>
+
+                        </div>
+
+                    ) : (
+
+                        <div className="admin-recent-orders">
+
+                            {recentOrders.map((order) => {
+
+                                const status =
+                                    order.status || "Pending";
+
+                                return (
+                                    <div
+                                        className="admin-recent-order"
+                                        key={order.id}
+                                    >
+
+                                        <div>
+
+                                            <strong>
+                                                Commande #{order.id}
+                                            </strong>
+
+                                            <span>
+                                                User ID: {order.userId}
+                                            </span>
+
+                                            <span>
+                                                {formatDate(
+                                                    order.orderDate
+                                                )}
+                                            </span>
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                {formatMoney(
+                                                    order.totalAmount
+                                                )}{" "}
+                                                DH
+                                            </strong>
+
+                                            <span
+                                                className={`status-badge status-${String(
+                                                    status
+                                                ).toLowerCase()}`}
+                                            >
+                                                {status}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+                                );
+                            })}
+
+                        </div>
+
+                    )}
+
+                </section>
+
+                {/* ==================================
+                    LOW STOCK
+                ================================== */}
+
+                <section className="admin-dashboard-section">
+
+                    <div className="admin-section-header">
+
+                        <div>
+
+                            <h2>
+                                âš ï¸ Stock faible
+                            </h2>
+
+                            <p>
+                                Produits avec 5 unitÃ©s ou moins
+                            </p>
+
+                        </div>
+
+                        <button
+                            onClick={() =>
+                                navigate("/admin/products")
+                            }
+                        >
+                            Produits â†’
+                        </button>
+
+                    </div>
+
+                    {lowStockProducts.length === 0 ? (
+
+                        <div className="admin-empty-state">
+
+                            <div>
+                                âœ…
+                            </div>
+
+                            <h3>
+                                Stock correct
+                            </h3>
+
+                            <p>
+                                Aucun produit avec un stock faible.
+                            </p>
+
+                        </div>
+
+                    ) : (
+
+                        <div className="admin-low-stock-list">
+
+                            {lowStockProducts.map((product) => (
+
+                                <div
+                                    className="admin-low-stock-item"
+                                    key={product.id}
+                                >
+
+                                    <div>
+
+                                        <strong>
+                                            {product.name}
+                                        </strong>
+
+                                        <span>
+                                            Produit #{product.id}
+                                        </span>
+
+                                    </div>
+
+                                    <strong>
+                                        {product.stock} unitÃ©
+                                        {Number(product.stock) !== 1
+                                            ? "s"
+                                            : ""}
+                                    </strong>
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
+                    )}
+
+                </section>
+
+            </div>
+
+        </main>
+    );
+}
+
+export default AdminDashboard;
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
+function AdminOrders() {
+    const navigate = useNavigate();
+
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [updatingId, setUpdatingId] = useState(null);
+
+    // ==============================
+    // SEARCH / FILTER / PAGINATION
+    // ==============================
+
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const ordersPerPage = 10;
+
+    const statuses = [
+        "Pending",
+        "Confirmed",
+        "Shipped",
+        "Delivered",
+        "Cancelled",
+    ];
+
+    // ==============================
+    // LOAD ORDERS
+    // ==============================
+
+    useEffect(() => {
+        loadOrders();
+    }, []);
+
+    const loadOrders = async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError("");
+
+            const response = await api.get("/order");
+
+            console.log("ADMIN ORDERS:", response.data);
+
+            const data = Array.isArray(response.data)
+                ? response.data
+                : response.data?.value || [];
+
+            setOrders(data);
+        } catch (err) {
+            console.error("ADMIN ORDERS ERROR:", err);
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                navigate("/login");
+                return;
+            }
+
+            if (err.response?.status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Vous devez Ãªtre administrateur."
+                );
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                "Impossible de rÃ©cupÃ©rer les commandes."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ==============================
+    // UPDATE STATUS
+    // ==============================
+
+    const updateStatus = async (orderId, status) => {
+        try {
+            setUpdatingId(orderId);
+
+            await api.put(
+                `/order/${orderId}/status`,
+                {
+                    status,
+                }
+            );
+
+            setOrders((currentOrders) =>
+                currentOrders.map((order) =>
+                    order.id === orderId
+                        ? {
+                            ...order,
+                            status,
+                        }
+                        : order
+                )
+            );
+
+            console.log(
+                `Order #${orderId} updated to ${status}`
+            );
+        } catch (err) {
+            console.error(
+                "UPDATE STATUS ERROR:",
+                err
+            );
+
+            alert(
+                err.response?.data?.message ||
+                "Impossible de modifier le statut."
+            );
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
+    // ==============================
+    // DELETE ORDER
+    // ==============================
+
+    const deleteOrder = async (orderId) => {
+        const confirmed = window.confirm(
+            `Voulez-vous vraiment supprimer la commande #${orderId} ?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await api.delete(`/order/${orderId}`);
+
+            setOrders((currentOrders) =>
+                currentOrders.filter(
+                    (order) => order.id !== orderId
+                )
+            );
+
+            // Prevent empty page after deleting last item
+            setCurrentPage((page) => {
+                const filteredCount = filteredOrders.length - 1;
+                const maxPage = Math.max(
+                    1,
+                    Math.ceil(filteredCount / ordersPerPage)
+                );
+
+                return Math.min(page, maxPage);
+            });
+        } catch (err) {
+            console.error(
+                "DELETE ORDER ERROR:",
+                err
+            );
+
+            alert(
+                err.response?.data?.message ||
+                "Impossible de supprimer la commande."
+            );
+        }
+    };
+
+    // ==============================
+    // SEARCH + FILTER
+    // ==============================
+
+    const filteredOrders = orders.filter((order) => {
+        const searchValue = search
+            .trim()
+            .toLowerCase();
+
+        const matchesSearch =
+            searchValue === "" ||
+            String(order.id)
+                .toLowerCase()
+                .includes(searchValue) ||
+            String(order.userId)
+                .toLowerCase()
+                .includes(searchValue) ||
+            order.items?.some((item) =>
+                String(
+                    item.productName ||
+                    ""
+                )
+                    .toLowerCase()
+                    .includes(searchValue)
+            );
+
+        const matchesStatus =
+            statusFilter === "All" ||
+            order.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    // ==============================
+    // PAGINATION
+    // ==============================
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(
+            filteredOrders.length /
+            ordersPerPage
+        )
+    );
+
+    const startIndex =
+        (currentPage - 1) *
+        ordersPerPage;
+
+    const currentOrders =
+        filteredOrders.slice(
+            startIndex,
+            startIndex + ordersPerPage
+        );
+
+    // ==============================
+    // RESET PAGE WHEN SEARCH/FILTER
+    // ==============================
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, statusFilter]);
+
+    // ==============================
+    // PAGINATION BUTTONS
+    // ==============================
+
+    const goToPage = (page) => {
+        if (page < 1 || page > totalPages) {
+            return;
+        }
+
+        setCurrentPage(page);
+    };
+
+    // ==============================
+    // LOADING
+    // ==============================
+
+    if (loading) {
+        return (
+            <main className="container admin-orders-page">
+                <h1>Admin Dashboard</h1>
+                <p>Chargement des commandes...</p>
+            </main>
+        );
+    }
+
+    // ==============================
+    // DASHBOARD
+    // ==============================
+
+    return (
+        <main className="container admin-orders-page">
+
+            {/* ==========================
+                HEADER
+            ========================== */}
+
+            <div className="admin-header">
+
+                <div>
+                    <h1>Admin Dashboard</h1>
+
+                    <p>
+                        Gestion des commandes
+                    </p>
+                </div>
+
+                <button
+                    className="admin-refresh-button"
+                    onClick={loadOrders}
+                >
+                    ðŸ”„ Actualiser
+                </button>
+
+            </div>
+
+            {/* ==========================
+                ERROR
+            ========================== */}
+
+            {error && (
+                <div className="admin-error">
+                    {error}
+                </div>
+            )}
+
+            {!error && (
+                <>
+
+                    {/* ==========================
+                        STATS
+                    ========================== */}
+
+                    <div className="admin-stats">
+
+                        <div className="admin-stat-card">
+                            <span>
+                                Total commandes
+                            </span>
+
+                            <strong>
+                                {orders.length}
+                            </strong>
+                        </div>
+
+                        <div className="admin-stat-card">
+                            <span>
+                                Pending
+                            </span>
+
+                            <strong>
+                                {
+                                    orders.filter(
+                                        (o) =>
+                                            o.status ===
+                                            "Pending"
+                                    ).length
+                                }
+                            </strong>
+                        </div>
+
+                        <div className="admin-stat-card">
+                            <span>
+                                Confirmed
+                            </span>
+
+                            <strong>
+                                {
+                                    orders.filter(
+                                        (o) =>
+                                            o.status ===
+                                            "Confirmed"
+                                    ).length
+                                }
+                            </strong>
+                        </div>
+
+                        <div className="admin-stat-card">
+                            <span>
+                                Delivered
+                            </span>
+
+                            <strong>
+                                {
+                                    orders.filter(
+                                        (o) =>
+                                            o.status ===
+                                            "Delivered"
+                                    ).length
+                                }
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    {/* ==========================
+                        SEARCH + FILTER
+                    ========================== */}
+
+                    <div className="admin-orders-toolbar">
+
+                        <div className="admin-search-box">
+
+                            <span>
+                                ðŸ”Ž
+                            </span>
+
+                            <input
+                                type="text"
+                                placeholder="Rechercher par ID, User ID ou produit..."
+                                value={search}
+                                onChange={(e) =>
+                                    setSearch(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            {search && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setSearch("")
+                                    }
+                                >
+                                    âœ•
+                                </button>
+                            )}
+
+                        </div>
+
+                        <div className="admin-filter-box">
+
+                            <label>
+                                Statut
+                            </label>
+
+                            <select
+                                value={statusFilter}
+                                onChange={(e) =>
+                                    setStatusFilter(
+                                        e.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="All">
+                                    Tous les statuts
+                                </option>
+
+                                {statuses.map(
+                                    (status) => (
+                                        <option
+                                            key={status}
+                                            value={status}
+                                        >
+                                            {status}
+                                        </option>
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    {/* ==========================
+                        RESULTS INFO
+                    ========================== */}
+
+                    <div className="admin-results-info">
+
+                        <span>
+                            {filteredOrders.length} commande
+                            {filteredOrders.length !== 1
+                                ? "s"
+                                : ""}{" "}
+                            trouvÃ©e
+                            {filteredOrders.length !== 1
+                                ? "s"
+                                : ""}
+                        </span>
+
+                        {search && (
+                            <span>
+                                Recherche :{" "}
+                                <strong>
+                                    "{search}"
+                                </strong>
+                            </span>
+                        )}
+
+                        {statusFilter !== "All" && (
+                            <span>
+                                Statut :{" "}
+                                <strong>
+                                    {statusFilter}
+                                </strong>
+                            </span>
+                        )}
+
+                    </div>
+
+                    {/* ==========================
+                        ORDERS
+                    ========================== */}
+
+                    <div className="admin-orders-list">
+
+                        {currentOrders.length === 0 ? (
+
+                            <div className="admin-empty-state">
+
+                                <div>
+                                    ðŸ”
+                                </div>
+
+                                <h2>
+                                    Aucune commande trouvÃ©e
+                                </h2>
+
+                                <p>
+                                    Essayez de modifier votre
+                                    recherche ou votre filtre.
+                                </p>
+
+                                <button
+                                    onClick={() => {
+                                        setSearch("");
+                                        setStatusFilter("All");
+                                    }}
+                                >
+                                    RÃ©initialiser
+                                </button>
+
+                            </div>
+
+                        ) : (
+
+                            currentOrders.map(
+                                (order) => (
+
+                                    <article
+                                        className="admin-order-card"
+                                        key={order.id}
+                                    >
+
+                                        {/* ==========================
+                                            ORDER HEADER
+                                        ========================== */}
+
+                                        <div className="admin-order-top">
+
+                                            <div>
+
+                                                <h2>
+                                                    Commande #
+                                                    {order.id}
+                                                </h2>
+
+                                                <p>
+                                                    User ID:{" "}
+                                                    {order.userId}
+                                                </p>
+
+                                                <p>
+                                                    {order.orderDate
+                                                        ? new Date(
+                                                            order.orderDate
+                                                        ).toLocaleString(
+                                                            "fr-FR"
+                                                        )
+                                                        : ""}
+                                                </p>
+
+                                            </div>
+
+                                            <div className="admin-order-total">
+
+                                                <span>
+                                                    Total
+                                                </span>
+
+                                                <strong>
+                                                    {Number(
+                                                        order.totalAmount ||
+                                                        0
+                                                    ).toFixed(2)}{" "}
+                                                    DH
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                        {/* ==========================
+                                            ORDER ITEMS
+                                        ========================== */}
+
+                                        <div className="admin-order-items">
+
+                                            {order.items?.map(
+                                                (item) => (
+
+                                                    <div
+                                                        className="admin-order-item"
+                                                        key={item.id}
+                                                    >
+
+                                                        <div>
+
+                                                            <strong>
+                                                                {
+                                                                    item.productName ||
+                                                                    `Produit #${item.productId}`
+                                                                }
+                                                            </strong>
+
+                                                            <p>
+                                                                QuantitÃ©:{" "}
+                                                                {
+                                                                    item.quantity
+                                                                }
+                                                            </p>
+
+                                                        </div>
+
+                                                        <strong>
+                                                            {Number(
+                                                                item.totalPrice ||
+                                                                0
+                                                            ).toFixed(2)}{" "}
+                                                            DH
+                                                        </strong>
+
+                                                    </div>
+
+                                                )
+                                            )}
+
+                                        </div>
+
+                                        {/* ==========================
+                                            ACTIONS
+                                        ========================== */}
+
+                                        <div className="admin-order-actions">
+
+                                            <div className="status-control">
+
+                                                <label>
+                                                    Statut
+                                                </label>
+
+                                                <select
+                                                    value={
+                                                        order.status ||
+                                                        "Pending"
+                                                    }
+                                                    disabled={
+                                                        updatingId ===
+                                                        order.id
+                                                    }
+                                                    onChange={(e) =>
+                                                        updateStatus(
+                                                            order.id,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                >
+
+                                                    {statuses.map(
+                                                        (status) => (
+
+                                                            <option
+                                                                key={
+                                                                    status
+                                                                }
+                                                                value={
+                                                                    status
+                                                                }
+                                                            >
+                                                                {status}
+                                                            </option>
+
+                                                        )
+                                                    )}
+
+                                                </select>
+
+                                            </div>
+
+                                            <button
+                                                className="delete-order-button"
+                                                onClick={() =>
+                                                    deleteOrder(
+                                                        order.id
+                                                    )
+                                                }
+                                            >
+                                                ðŸ—‘ï¸ Supprimer
+                                            </button>
+
+                                        </div>
+
+                                    </article>
+
+                                )
+                            )
+
+                        )}
+
+                    </div>
+
+                    {/* ==========================
+                        PAGINATION
+                    ========================== */}
+
+                    {filteredOrders.length > 0 && (
+                        <div className="admin-pagination">
+
+                            <button
+                                onClick={() =>
+                                    goToPage(
+                                        currentPage - 1
+                                    )
+                                }
+                                disabled={
+                                    currentPage === 1
+                                }
+                            >
+                                â† PrÃ©cÃ©dent
+                            </button>
+
+                            <div className="pagination-pages">
+
+                                {Array.from(
+                                    {
+                                        length: totalPages,
+                                    },
+                                    (_, index) => {
+                                        const page =
+                                            index + 1;
+
+                                        return (
+                                            <button
+                                                key={page}
+                                                className={
+                                                    currentPage ===
+                                                    page
+                                                        ? "active"
+                                                        : ""
+                                                }
+                                                onClick={() =>
+                                                    goToPage(
+                                                        page
+                                                    )
+                                                }
+                                            >
+                                                {page}
+                                            </button>
+                                        );
+                                    }
+                                )}
+
+                            </div>
+
+                            <button
+                                onClick={() =>
+                                    goToPage(
+                                        currentPage + 1
+                                    )
+                                }
+                                disabled={
+                                    currentPage ===
+                                    totalPages
+                                }
+                            >
+                                Suivant â†’
+                            </button>
+
+                        </div>
+                    )}
+
+                    {/* ==========================
+                        PAGE INFO
+                    ========================== */}
+
+                    {filteredOrders.length > 0 && (
+                        <div className="admin-pagination-info">
+
+                            Affichage de{" "}
+                            <strong>
+                                {startIndex + 1}
+                            </strong>{" "}
+                            Ã {" "}
+                            <strong>
+                                {Math.min(
+                                    startIndex +
+                                    ordersPerPage,
+                                    filteredOrders.length
+                                )}
+                            </strong>{" "}
+                            sur{" "}
+                            <strong>
+                                {filteredOrders.length}
+                            </strong>{" "}
+                            commandes
+
+                        </div>
+                    )}
+
+                </>
+            )}
+
+        </main>
+    );
+}
+
+export default AdminOrders;
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
+function AdminProducts() {
+    const navigate = useNavigate();
+
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const [editingId, setEditingId] = useState(null);
+
+    const emptyForm = {
+        name: "",
+        description: "",
+        price: "",
+        stock: "10",
+        imageUrl: "",
+        categoryId: "",
+    };
+
+    const [form, setForm] = useState(emptyForm);
+
+    // =========================================================
+    // RESET FORM
+    // =========================================================
+
+    const resetForm = () => {
+        setForm({ ...emptyForm });
+        setEditingId(null);
+    };
+
+    // =========================================================
+    // LOAD PRODUCTS
+    // =========================================================
+
+    const loadProducts = async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            navigate("/login");
+            return [];
+        }
+
+        try {
+            const response = await api.get("/Product");
+
+            console.log("====================================");
+            console.log("GET /Product");
+            console.log("PRODUCTS RESPONSE:", response.data);
+            console.log("====================================");
+
+            const data = Array.isArray(response.data)
+                ? response.data
+                : response.data?.value || [];
+
+            setProducts(data);
+
+            console.log("ðŸ”¥ PRODUCTS STATE DATA:", data);
+
+            return data;
+        } catch (err) {
+            console.error("GET PRODUCTS ERROR:", err);
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                navigate("/login");
+                return [];
+            }
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "Impossible de rÃ©cupÃ©rer les produits."
+            );
+
+            return [];
+        }
+    };
+
+    // =========================================================
+    // LOAD CATEGORIES
+    // =========================================================
+
+    const loadCategories = async () => {
+        try {
+            const response = await api.get("/Category");
+
+            console.log("====================================");
+            console.log("GET /Category");
+            console.log("CATEGORIES RESPONSE:", response.data);
+            console.log("====================================");
+
+            const data = Array.isArray(response.data)
+                ? response.data
+                : response.data?.value || [];
+
+            setCategories(data);
+
+            return data;
+        } catch (err) {
+            console.error("GET CATEGORIES ERROR:", err);
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "Impossible de rÃ©cupÃ©rer les catÃ©gories."
+            );
+
+            return [];
+        }
+    };
+
+    // =========================================================
+    // INITIAL LOAD
+    // =========================================================
+
+    useEffect(() => {
+        const initialize = async () => {
+            setLoading(true);
+
+            await Promise.all([
+                loadProducts(),
+                loadCategories(),
+            ]);
+
+            setLoading(false);
+        };
+
+        initialize();
+    }, []);
+
+    // =========================================================
+    // HANDLE INPUT
+    // =========================================================
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setForm((current) => ({
+            ...current,
+            [name]: value,
+        }));
+
+        setError("");
+        setSuccess("");
+    };
+
+    // =========================================================
+    // SUBMIT CREATE / UPDATE
+    // =========================================================
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (saving) {
+            return;
+        }
+
+        setError("");
+        setSuccess("");
+
+        console.log("========================================");
+        console.log("ðŸ”¥ HANDLE SUBMIT");
+        console.log("FORM:", form);
+        console.log("EDITING ID:", editingId);
+        console.log("========================================");
+
+        const name = form.name.trim();
+        const price = Number(form.price);
+        const stock = Number(form.stock);
+        const categoryId = Number(form.categoryId);
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (!name) {
+            setError("Le nom du produit est obligatoire.");
+            return;
+        }
+
+        if (
+            form.price === "" ||
+            !Number.isFinite(price) ||
+            price < 0
+        ) {
+            setError("Le prix doit Ãªtre valide.");
+            return;
+        }
+
+        if (
+            form.stock === "" ||
+            !Number.isFinite(stock) ||
+            stock < 0 ||
+            !Number.isInteger(stock)
+        ) {
+            setError(
+                "Le stock doit Ãªtre un nombre entier supÃ©rieur ou Ã©gal Ã  0."
+            );
+            return;
+        }
+
+        if (
+            form.categoryId === "" ||
+            !Number.isInteger(categoryId) ||
+            categoryId <= 0
+        ) {
+            setError("Veuillez sÃ©lectionner une catÃ©gorie.");
+            return;
+        }
+
+        // =====================================================
+        // DATA
+        // =====================================================
+
+        const productData = {
+            name,
+            description: form.description.trim(),
+            price,
+            stock,
+            imageUrl: form.imageUrl.trim(),
+            categoryId,
+        };
+
+        console.log("ðŸ“¦ PRODUCT DATA:", productData);
+
+        try {
+            setSaving(true);
+
+            // =================================================
+            // UPDATE
+            // =================================================
+
+            if (editingId !== null) {
+                console.log(
+                    `ðŸ”¥ PUT /Product/${editingId}`
+                );
+
+                const response = await api.put(
+                    `/Product/${editingId}`,
+                    productData
+                );
+
+                console.log(
+                    "âœ… UPDATE RESPONSE:",
+                    response.data
+                );
+
+                await loadProducts();
+
+                setSuccess(
+                    "Produit modifiÃ© avec succÃ¨s."
+                );
+            }
+
+            // =================================================
+            // CREATE
+            // =================================================
+
+            else {
+                console.log("ðŸ”¥ POST /Product");
+
+                const response = await api.post(
+                    "/Product",
+                    productData
+                );
+
+                console.log(
+                    "âœ… CREATE RESPONSE:",
+                    response.data
+                );
+
+                const createdProduct = response.data;
+
+                if (
+                    createdProduct &&
+                    createdProduct.id
+                ) {
+                    setProducts((currentProducts) => [
+                        ...currentProducts,
+                        createdProduct,
+                    ]);
+
+                    console.log(
+                        "ðŸ”¥ PRODUCT ADDED DIRECTLY TO STATE:",
+                        createdProduct
+                    );
+                } else {
+                    await loadProducts();
+                }
+
+                setSuccess(
+                    "Produit ajoutÃ© avec succÃ¨s."
+                );
+            }
+
+            resetForm();
+
+        } catch (err) {
+            console.error("========================================");
+            console.error("âŒ SAVE PRODUCT ERROR");
+            console.error("STATUS:", err.response?.status);
+            console.error("DATA:", err.response?.data);
+            console.error("========================================");
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                navigate("/login");
+                return;
+            }
+
+            if (err.response?.status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Votre compte doit avoir le rÃ´le Admin."
+                );
+                return;
+            }
+
+            if (err.response?.status === 400) {
+                setError(
+                    err.response?.data?.message ||
+                    err.response?.data?.title ||
+                    "Les donnÃ©es envoyÃ©es sont invalides."
+                );
+                return;
+            }
+
+            if (err.response?.status === 500) {
+                setError(
+                    "Erreur serveur. VÃ©rifiez le terminal de l'API."
+                );
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Impossible d'enregistrer le produit."
+            );
+
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // =========================================================
+    // EDIT PRODUCT
+    // =========================================================
+
+    const editProduct = (product) => {
+        console.log("âœï¸ EDIT PRODUCT:", product);
+
+        setEditingId(product.id);
+
+        setForm({
+            name: product.name ?? "",
+            description: product.description ?? "",
+            price:
+                product.price !== null &&
+                product.price !== undefined
+                    ? String(product.price)
+                    : "",
+            stock:
+                product.stock !== null &&
+                product.stock !== undefined
+                    ? String(product.stock)
+                    : "0",
+            imageUrl: product.imageUrl ?? "",
+            categoryId:
+                product.categoryId !== null &&
+                product.categoryId !== undefined
+                    ? String(product.categoryId)
+                    : "",
+        });
+
+        setError("");
+        setSuccess("");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+    };
+
+    // =========================================================
+    // DELETE PRODUCT
+    // =========================================================
+
+    const deleteProduct = async (productId) => {
+        const confirmed = window.confirm(
+            `Voulez-vous vraiment supprimer le produit #${productId} ?`
+        );
+
+        if (!confirmed || saving) {
+            return;
+        }
+
+        try {
+            setError("");
+            setSuccess("");
+            setSaving(true);
+
+            console.log(
+                `ðŸ—‘ï¸ DELETE /Product/${productId}`
+            );
+
+            const response = await api.delete(
+                `/Product/${productId}`
+            );
+
+            console.log(
+                "âœ… DELETE RESPONSE:",
+                response.data
+            );
+
+            // =================================================
+            // REMOVE FROM STATE
+            // =================================================
+
+            setProducts((currentProducts) =>
+                currentProducts.filter(
+                    (product) =>
+                        Number(product.id) !==
+                        Number(productId)
+                )
+            );
+
+            // =================================================
+            // IF EDITING THIS PRODUCT
+            // =================================================
+
+            if (
+                Number(editingId) ===
+                Number(productId)
+            ) {
+                resetForm();
+            }
+
+            setSuccess(
+                "Produit supprimÃ© avec succÃ¨s."
+            );
+
+        } catch (err) {
+            console.error("========================================");
+            console.error("âŒ DELETE PRODUCT ERROR");
+            console.error("STATUS:", err.response?.status);
+            console.error("DATA:", err.response?.data);
+            console.error("========================================");
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                navigate("/login");
+                return;
+            }
+
+            if (err.response?.status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Vous devez Ãªtre administrateur."
+                );
+                return;
+            }
+
+            // =================================================
+            // PRODUCT USED IN ORDER
+            // =================================================
+
+            if (
+                err.response?.status === 409 ||
+                err.response?.status === 500
+            ) {
+                const serverMessage =
+                    err.response?.data?.message ||
+                    err.response?.data?.title ||
+                    "";
+
+                if (
+                    serverMessage
+                        .toLowerCase()
+                        .includes("order") ||
+                    serverMessage
+                        .toLowerCase()
+                        .includes("orderitem") ||
+                    serverMessage
+                        .toLowerCase()
+                        .includes("commande") ||
+                    serverMessage
+                        .toLowerCase()
+                        .includes("reference") ||
+                    serverMessage
+                        .toLowerCase()
+                        .includes("constraint")
+                ) {
+                    setError(
+                        "Impossible de supprimer ce produit car il est dÃ©jÃ  utilisÃ© dans une commande."
+                    );
+                } else {
+                    setError(
+                        serverMessage ||
+                        "Impossible de supprimer ce produit. Il est peut-Ãªtre utilisÃ© ailleurs dans la base de donnÃ©es."
+                    );
+                }
+
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Impossible de supprimer le produit."
+            );
+
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // =========================================================
+    // CATEGORY NAME
+    // =========================================================
+
+    const getCategoryName = (categoryId) => {
+        const category = categories.find(
+            (item) =>
+                Number(item.id) ===
+                Number(categoryId)
+        );
+
+        return (
+            category?.name ||
+            `CatÃ©gorie #${categoryId}`
+        );
+    };
+
+    // =========================================================
+    // REFRESH
+    // =========================================================
+
+    const handleRefresh = async () => {
+        if (saving) {
+            return;
+        }
+
+        setError("");
+        setSuccess("");
+        setLoading(true);
+
+        await Promise.all([
+            loadProducts(),
+            loadCategories(),
+        ]);
+
+        setLoading(false);
+    };
+
+    // =========================================================
+    // LOADING
+    // =========================================================
+
+    if (loading) {
+        return (
+            <main className="container admin-products-page">
+                <h1>
+                    Gestion des produits
+                </h1>
+
+                <p>
+                    Chargement des produits...
+                </p>
+            </main>
+        );
+    }
+
+    // =========================================================
+    // PAGE
+    // =========================================================
+
+    return (
+        <main className="container admin-products-page">
+
+            {/* HEADER */}
+
+            <div className="admin-header">
+
+                <div>
+                    <h1>
+                        Gestion des produits
+                    </h1>
+
+                    <p>
+                        Ajouter, modifier et supprimer les produits.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    className="admin-refresh-button"
+                    onClick={handleRefresh}
+                    disabled={saving}
+                >
+                    ðŸ”„ Actualiser
+                </button>
+
+            </div>
+
+            {/* ERROR */}
+
+            {error && (
+                <div className="admin-error">
+                    {error}
+                </div>
+            )}
+
+            {/* SUCCESS */}
+
+            {success && (
+                <div className="admin-success">
+                    {success}
+                </div>
+            )}
+
+            {/* FORM */}
+
+            <section className="product-form-card">
+
+                <div className="product-form-header">
+
+                    <div>
+
+                        <h2>
+                            {editingId !== null
+                                ? "âœï¸ Modifier le produit"
+                                : "âž• Ajouter un produit"}
+                        </h2>
+
+                        <p>
+                            {editingId !== null
+                                ? `Modification du produit #${editingId}`
+                                : "CrÃ©er un nouveau produit"}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <form
+                    className="product-form"
+                    onSubmit={handleSubmit}
+                >
+
+                    {/* NAME + CATEGORY */}
+
+                    <div className="form-row">
+
+                        <div className="form-group">
+
+                            <label htmlFor="product-name">
+                                Nom du produit
+                            </label>
+
+                            <input
+                                id="product-name"
+                                type="text"
+                                name="name"
+                                value={form.name}
+                                onChange={handleChange}
+                                placeholder="Ex: Laptop Dell"
+                                autoComplete="off"
+                                required
+                            />
+
+                        </div>
+
+                        <div className="form-group">
+
+                            <label htmlFor="product-category">
+                                CatÃ©gorie
+                            </label>
+
+                            <select
+                                id="product-category"
+                                name="categoryId"
+                                value={form.categoryId}
+                                onChange={handleChange}
+                                required
+                            >
+
+                                <option value="">
+                                    SÃ©lectionner une catÃ©gorie
+                                </option>
+
+                                {categories.map(
+                                    (category) => (
+                                        <option
+                                            key={category.id}
+                                            value={category.id}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    {/* DESCRIPTION */}
+
+                    <div className="form-group">
+
+                        <label htmlFor="product-description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="product-description"
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                            placeholder="Description du produit..."
+                            rows={4}
+                        />
+
+                    </div>
+
+                    {/* PRICE + STOCK */}
+
+                    <div className="form-row">
+
+                        <div className="form-group">
+
+                            <label htmlFor="product-price">
+                                Prix (DH)
+                            </label>
+
+                            <input
+                                id="product-price"
+                                type="number"
+                                name="price"
+                                value={form.price}
+                                onChange={handleChange}
+                                min="0"
+                                step="0.01"
+                                placeholder="9200"
+                                required
+                            />
+
+                        </div>
+
+                        <div className="form-group">
+
+                            <label htmlFor="product-stock">
+                                Stock
+                            </label>
+
+                            <input
+                                id="product-stock"
+                                type="number"
+                                name="stock"
+                                value={form.stock}
+                                onChange={handleChange}
+                                min="0"
+                                step="1"
+                                placeholder="10"
+                                required
+                            />
+
+                        </div>
+
+                    </div>
+
+                    {/* IMAGE */}
+
+                    <div className="form-group">
+
+                        <label htmlFor="product-image">
+                            Image URL
+                        </label>
+
+                        <input
+                            id="product-image"
+                            type="text"
+                            name="imageUrl"
+                            value={form.imageUrl}
+                            onChange={handleChange}
+                            placeholder="https://example.com/product.jpg"
+                            autoComplete="off"
+                        />
+
+                    </div>
+
+                    {/* BUTTONS */}
+
+                    <div className="product-form-actions">
+
+                        <button
+                            type="submit"
+                            className="save-product-button"
+                            disabled={saving}
+                        >
+                            {saving
+                                ? "â³ Enregistrement..."
+                                : editingId !== null
+                                    ? "ðŸ’¾ Modifier le produit"
+                                    : "âž• Ajouter le produit"}
+                        </button>
+
+                        {editingId !== null && (
+                            <button
+                                type="button"
+                                className="cancel-product-button"
+                                onClick={() => {
+                                    resetForm();
+                                    setError("");
+                                    setSuccess("");
+                                }}
+                                disabled={saving}
+                            >
+                                Annuler
+                            </button>
+                        )}
+
+                    </div>
+
+                </form>
+
+            </section>
+
+            {/* STATISTICS */}
+
+            <div className="admin-stats">
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Total produits
+                    </span>
+
+                    <strong>
+                        {products.length}
+                    </strong>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Stock total
+                    </span>
+
+                    <strong>
+                        {products.reduce(
+                            (total, product) =>
+                                total +
+                                Number(
+                                    product.stock || 0
+                                ),
+                            0
+                        )}
+                    </strong>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Produits disponibles
+                    </span>
+
+                    <strong>
+                        {
+                            products.filter(
+                                (product) =>
+                                    Number(
+                                        product.stock
+                                    ) > 0
+                            ).length
+                        }
+                    </strong>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Rupture de stock
+                    </span>
+
+                    <strong>
+                        {
+                            products.filter(
+                                (product) =>
+                                    Number(
+                                        product.stock
+                                    ) <= 0
+                            ).length
+                        }
+                    </strong>
+
+                </div>
+
+            </div>
+
+            {/* PRODUCTS */}
+
+            <section className="admin-products-list">
+
+                {products.length === 0 ? (
+
+                    <div className="empty-products">
+
+                        <div>
+                            ðŸ“¦
+                        </div>
+
+                        <h2>
+                            Aucun produit
+                        </h2>
+
+                        <p>
+                            Commencez par ajouter votre premier produit.
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    products.map((product) => (
+
+                        <article
+                            className="admin-product-card"
+                            key={product.id}
+                        >
+
+                            {/* IMAGE */}
+
+                            <div className="admin-product-image-wrapper">
+
+                                {product.imageUrl ? (
+
+                                    <img
+                                        src={product.imageUrl}
+                                        alt={product.name}
+                                        className="admin-product-image"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display =
+                                                "none";
+                                        }}
+                                    />
+
+                                ) : (
+
+                                    <div className="admin-product-no-image">
+                                        ðŸ“¦
+                                    </div>
+
+                                )}
+
+                            </div>
+
+                            {/* INFO */}
+
+                            <div className="admin-product-info">
+
+                                <div className="admin-product-title-row">
+
+                                    <div>
+
+                                        <h2>
+                                            {product.name}
+                                        </h2>
+
+                                        <span className="product-id">
+                                            ID #{product.id}
+                                        </span>
+
+                                    </div>
+
+                                    <strong className="admin-product-price">
+
+                                        {Number(
+                                            product.price || 0
+                                        ).toFixed(2)}{" "}
+                                        DH
+
+                                    </strong>
+
+                                </div>
+
+                                <p className="admin-product-description">
+
+                                    {product.description ||
+                                        "Aucune description"}
+
+                                </p>
+
+                                <div className="admin-product-meta">
+
+                                    <span>
+                                        ðŸ·ï¸{" "}
+                                        {getCategoryName(
+                                            product.categoryId
+                                        )}
+                                    </span>
+
+                                    <span
+                                        className={
+                                            Number(
+                                                product.stock
+                                            ) > 0
+                                                ? "stock-ok"
+                                                : "stock-empty"
+                                        }
+                                    >
+                                        ðŸ“¦ Stock :{" "}
+                                        {product.stock}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            {/* ACTIONS */}
+
+                            <div className="admin-product-actions">
+
+                                <button
+                                    type="button"
+                                    className="edit-product-button"
+                                    onClick={() =>
+                                        editProduct(product)
+                                    }
+                                    disabled={saving}
+                                >
+                                    âœï¸ Modifier
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="delete-product-button"
+                                    onClick={() =>
+                                        deleteProduct(
+                                            product.id
+                                        )
+                                    }
+                                    disabled={saving}
+                                >
+                                    ðŸ—‘ï¸ Supprimer
+                                </button>
+
+                            </div>
+
+                        </article>
+
+                    ))
+
+                )}
+
+            </section>
+
+        </main>
+    );
+}
+
+export default AdminProducts;
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+
+function AdminUsers() {
+    const navigate = useNavigate();
+
+    // =========================================================
+    // STATE
+    // =========================================================
+
+    const [users, setUsers] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const [updatingId, setUpdatingId] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+
+    // =========================================================
+    // SEARCH / FILTER / PAGINATION
+    // =========================================================
+
+    const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("All");
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const usersPerPage = 10;
+
+    const roles = ["User", "Admin"];
+
+    // =========================================================
+    // LOAD USERS
+    // =========================================================
+
+    const loadUsers = async (showLoading = true) => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            if (showLoading) {
+                setLoading(true);
+            }
+
+            setError("");
+
+            const response = await api.get("/User");
+
+            console.log("========================================");
+            console.log("GET /User");
+            console.log("USERS RESPONSE:", response.data);
+            console.log("========================================");
+
+            const data = Array.isArray(response.data)
+                ? response.data
+                : response.data?.value || [];
+
+            setUsers(data);
+
+        } catch (err) {
+            console.error("GET USERS ERROR:", err);
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
+
+                navigate("/login");
+                return;
+            }
+
+            if (err.response?.status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Vous devez Ãªtre administrateur."
+                );
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "Impossible de rÃ©cupÃ©rer les utilisateurs."
+            );
+
+        } finally {
+            if (showLoading) {
+                setLoading(false);
+            }
+        }
+    };
+
+    // =========================================================
+    // INITIAL LOAD
+    // =========================================================
+
+    useEffect(() => {
+        loadUsers();
+    }, []);
+
+    // =========================================================
+    // CHANGE ROLE
+    // =========================================================
+
+    const changeRole = async (userId, newRole) => {
+        if (updatingId !== null || deletingId !== null) {
+            return;
+        }
+
+        const normalizedRole =
+            newRole === "Admin"
+                ? "Admin"
+                : "User";
+
+        try {
+            setUpdatingId(userId);
+            setError("");
+            setSuccess("");
+
+            console.log("========================================");
+            console.log("CHANGE USER ROLE");
+            console.log("USER ID:", userId);
+            console.log("NEW ROLE:", normalizedRole);
+            console.log("========================================");
+
+            /*
+             * UserController:
+             *
+             * [HttpPut("{id:int}/role")]
+             * public async Task<IActionResult> ChangeRole(
+             *     int id,
+             *     [FromBody] string role)
+             *
+             * Donc on envoie directement:
+             *
+             * "Admin"
+             *
+             * et pas:
+             *
+             * { role: "Admin" }
+             */
+
+            const response = await api.put(
+                `/User/${userId}/role`,
+                normalizedRole,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            console.log(
+                "CHANGE ROLE RESPONSE:",
+                response.data
+            );
+
+            // =====================================================
+            // UPDATE LOCAL STATE
+            // =====================================================
+
+            setUsers((currentUsers) =>
+                currentUsers.map((user) =>
+                    Number(user.id) === Number(userId)
+                        ? {
+                            ...user,
+                            role: normalizedRole,
+                        }
+                        : user
+                )
+            );
+
+            setSuccess(
+                `Le rÃ´le de l'utilisateur a Ã©tÃ© changÃ© en ${normalizedRole}.`
+            );
+
+        } catch (err) {
+            console.error("========================================");
+            console.error("CHANGE ROLE ERROR");
+            console.error("STATUS:", err.response?.status);
+            console.error("DATA:", err.response?.data);
+            console.error("========================================");
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
+
+                navigate("/login");
+                return;
+            }
+
+            if (err.response?.status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Vous devez Ãªtre administrateur."
+                );
+                return;
+            }
+
+            if (err.response?.status === 404) {
+                setError(
+                    "Utilisateur introuvable."
+                );
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "Impossible de modifier le rÃ´le."
+            );
+
+        } finally {
+            setUpdatingId(null);
+        }
+    };
+
+    // =========================================================
+    // DELETE USER
+    // =========================================================
+
+    const deleteUser = async (userId, username) => {
+        if (
+            deletingId !== null ||
+            updatingId !== null
+        ) {
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Voulez-vous vraiment supprimer l'utilisateur "${username}" ?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            setDeletingId(userId);
+            setError("");
+            setSuccess("");
+
+            console.log("========================================");
+            console.log("DELETE USER");
+            console.log("USER ID:", userId);
+            console.log("USERNAME:", username);
+            console.log("========================================");
+
+            const response = await api.delete(
+                `/User/${userId}`
+            );
+
+            console.log(
+                "DELETE USER RESPONSE:",
+                response.data
+            );
+
+            // =====================================================
+            // REMOVE USER FROM STATE
+            // =====================================================
+
+            setUsers((currentUsers) =>
+                currentUsers.filter(
+                    (user) =>
+                        Number(user.id) !==
+                        Number(userId)
+                )
+            );
+
+            setSuccess(
+                `L'utilisateur "${username}" a Ã©tÃ© supprimÃ© avec succÃ¨s.`
+            );
+
+        } catch (err) {
+            console.error("========================================");
+            console.error("DELETE USER ERROR");
+            console.error("STATUS:", err.response?.status);
+            console.error("DATA:", err.response?.data);
+            console.error("========================================");
+
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user");
+
+                navigate("/login");
+                return;
+            }
+
+            if (err.response?.status === 403) {
+                setError(
+                    "AccÃ¨s refusÃ©. Vous devez Ãªtre administrateur."
+                );
+                return;
+            }
+
+            if (err.response?.status === 404) {
+                setError(
+                    "Utilisateur introuvable."
+                );
+                return;
+            }
+
+            if (err.response?.status === 409) {
+                setError(
+                    err.response?.data?.message ||
+                    "Cet utilisateur ne peut pas Ãªtre supprimÃ© car il possÃ¨de des donnÃ©es liÃ©es."
+                );
+                return;
+            }
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                err.message ||
+                "Impossible de supprimer l'utilisateur."
+            );
+
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    // =========================================================
+    // REFRESH
+    // =========================================================
+
+    const handleRefresh = async () => {
+        if (
+            refreshing ||
+            updatingId !== null ||
+            deletingId !== null
+        ) {
+            return;
+        }
+
+        try {
+            setRefreshing(true);
+            setError("");
+            setSuccess("");
+
+            await loadUsers(false);
+
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
+    // =========================================================
+    // FILTER USERS
+    // =========================================================
+
+    const filteredUsers = useMemo(() => {
+        const searchValue =
+            search.trim().toLowerCase();
+
+        return users.filter((user) => {
+
+            const matchesSearch =
+                searchValue === "" ||
+                String(user.id)
+                    .toLowerCase()
+                    .includes(searchValue) ||
+                String(user.username || "")
+                    .toLowerCase()
+                    .includes(searchValue) ||
+                String(user.email || "")
+                    .toLowerCase()
+                    .includes(searchValue);
+
+            const normalizedUserRole =
+                user.role === "Admin"
+                    ? "Admin"
+                    : "User";
+
+            const matchesRole =
+                roleFilter === "All" ||
+                normalizedUserRole === roleFilter;
+
+            return (
+                matchesSearch &&
+                matchesRole
+            );
+        });
+
+    }, [users, search, roleFilter]);
+
+    // =========================================================
+    // PAGINATION
+    // =========================================================
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(
+            filteredUsers.length /
+            usersPerPage
+        )
+    );
+
+    // =========================================================
+    // MAKE SURE CURRENT PAGE EXISTS
+    // =========================================================
+
+    useEffect(() => {
+
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+
+    }, [currentPage, totalPages]);
+
+    // =========================================================
+    // RESET PAGE WHEN SEARCH / FILTER CHANGES
+    // =========================================================
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, roleFilter]);
+
+    // =========================================================
+    // CURRENT USERS
+    // =========================================================
+
+    const startIndex =
+        (currentPage - 1) *
+        usersPerPage;
+
+    const currentUsers =
+        filteredUsers.slice(
+            startIndex,
+            startIndex + usersPerPage
+        );
+
+    // =========================================================
+    // PAGINATION NAVIGATION
+    // =========================================================
+
+    const goToPage = (page) => {
+
+        if (
+            page < 1 ||
+            page > totalPages
+        ) {
+            return;
+        }
+
+        setCurrentPage(page);
+    };
+
+    // =========================================================
+    // STATS
+    // =========================================================
+
+    const totalUsers =
+        users.length;
+
+    const totalAdmins =
+        users.filter(
+            (user) =>
+                user.role === "Admin"
+        ).length;
+
+    const totalRegularUsers =
+        users.filter(
+            (user) =>
+                user.role !== "Admin"
+        ).length;
+
+    // =========================================================
+    // LOADING
+    // =========================================================
+
+    if (loading) {
+        return (
+            <main className="container admin-users-page">
+
+                <h1>
+                    Admin Dashboard
+                </h1>
+
+                <p>
+                    Chargement des utilisateurs...
+                </p>
+
+            </main>
+        );
+    }
+
+    // =========================================================
+    // PAGE
+    // =========================================================
+
+    return (
+        <main className="container admin-users-page">
+
+            {/* ================================================= */}
+            {/* HEADER */}
+            {/* ================================================= */}
+
+            <div className="admin-header">
+
+                <div>
+
+                    <h1>
+                        Admin Dashboard
+                    </h1>
+
+                    <p>
+                        Gestion des utilisateurs
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    className="admin-refresh-button"
+                    onClick={handleRefresh}
+                    disabled={
+                        refreshing ||
+                        updatingId !== null ||
+                        deletingId !== null
+                    }
+                >
+                    {refreshing
+                        ? "â³ Actualisation..."
+                        : "ðŸ”„ Actualiser"}
+                </button>
+
+            </div>
+
+            {/* ================================================= */}
+            {/* ERROR */}
+            {/* ================================================= */}
+
+            {error && (
+                <div className="admin-error">
+                    {error}
+                </div>
+            )}
+
+            {/* ================================================= */}
+            {/* SUCCESS */}
+            {/* ================================================= */}
+
+            {success && (
+                <div className="admin-success">
+                    {success}
+                </div>
+            )}
+
+            {/* ================================================= */}
+            {/* STATS */}
+            {/* ================================================= */}
+
+            <div className="admin-stats">
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Total utilisateurs
+                    </span>
+
+                    <strong>
+                        {totalUsers}
+                    </strong>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Utilisateurs
+                    </span>
+
+                    <strong>
+                        {totalRegularUsers}
+                    </strong>
+
+                </div>
+
+                <div className="admin-stat-card">
+
+                    <span>
+                        Administrateurs
+                    </span>
+
+                    <strong>
+                        {totalAdmins}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            {/* ================================================= */}
+            {/* SEARCH + FILTER */}
+            {/* ================================================= */}
+
+            <div className="admin-users-toolbar">
+
+                {/* SEARCH */}
+
+                <div className="admin-search-box">
+
+                    <span>
+                        ðŸ”Ž
+                    </span>
+
+                    <input
+                        type="text"
+                        placeholder="Rechercher par ID, username ou email..."
+                        value={search}
+                        onChange={(e) =>
+                            setSearch(
+                                e.target.value
+                            )
+                        }
+                    />
+
+                    {search && (
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setSearch("")
+                            }
+                        >
+                            âœ•
+                        </button>
+                    )}
+
+                </div>
+
+                {/* ROLE FILTER */}
+
+                <div className="admin-filter-box">
+
+                    <label>
+                        RÃ´le
+                    </label>
+
+                    <select
+                        value={roleFilter}
+                        onChange={(e) =>
+                            setRoleFilter(
+                                e.target.value
+                            )
+                        }
+                    >
+
+                        <option value="All">
+                            Tous les rÃ´les
+                        </option>
+
+                        {roles.map((role) => (
+                            <option
+                                key={role}
+                                value={role}
+                            >
+                                {role}
+                            </option>
+                        ))}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            {/* ================================================= */}
+            {/* RESULTS INFO */}
+            {/* ================================================= */}
+
+            <div className="admin-results-info">
+
+                <span>
+
+                    {filteredUsers.length} utilisateur
+                    {filteredUsers.length !== 1
+                        ? "s"
+                        : ""}{" "}
+
+                    trouvÃ©
+                    {filteredUsers.length !== 1
+                        ? "s"
+                        : ""}
+
+                </span>
+
+                {search && (
+                    <span>
+
+                        Recherche :{" "}
+
+                        <strong>
+                            "{search}"
+                        </strong>
+
+                    </span>
+                )}
+
+                {roleFilter !== "All" && (
+                    <span>
+
+                        RÃ´le :{" "}
+
+                        <strong>
+                            {roleFilter}
+                        </strong>
+
+                    </span>
+                )}
+
+            </div>
+
+            {/* ================================================= */}
+            {/* USERS */}
+            {/* ================================================= */}
+
+            <div className="admin-users-list">
+
+                {currentUsers.length === 0 ? (
+
+                    <div className="admin-empty-state">
+
+                        <div>
+                            ðŸ”
+                        </div>
+
+                        <h2>
+                            Aucun utilisateur trouvÃ©
+                        </h2>
+
+                        <p>
+                            Essayez de modifier votre
+                            recherche ou votre filtre.
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSearch("");
+                                setRoleFilter("All");
+                            }}
+                        >
+                            RÃ©initialiser
+                        </button>
+
+                    </div>
+
+                ) : (
+
+                    currentUsers.map((user) => {
+
+                        const isUpdating =
+                            Number(updatingId) ===
+                            Number(user.id);
+
+                        const isDeleting =
+                            Number(deletingId) ===
+                            Number(user.id);
+
+                        const isBusy =
+                            updatingId !== null ||
+                            deletingId !== null;
+
+                        const userRole =
+                            user.role === "Admin"
+                                ? "Admin"
+                                : "User";
+
+                        return (
+                            <article
+                                className="admin-user-card"
+                                key={user.id}
+                            >
+
+                                {/* ================================= */}
+                                {/* USER INFO */}
+                                {/* ================================= */}
+
+                                <div className="admin-user-info">
+
+                                    <div className="admin-user-avatar">
+
+                                        {user.username
+                                            ? user.username
+                                                .charAt(0)
+                                                .toUpperCase()
+                                            : "U"}
+
+                                    </div>
+
+                                    <div>
+
+                                        <h2>
+                                            {user.username ||
+                                                "Utilisateur"}
+                                        </h2>
+
+                                        <p>
+                                            ID: {user.id}
+                                        </p>
+
+                                        <p>
+                                            {user.email ||
+                                                "Email non disponible"}
+                                        </p>
+
+                                        <p>
+
+                                            CrÃ©Ã© le :{" "}
+
+                                            {user.createdAt
+                                                ? new Date(
+                                                    user.createdAt
+                                                ).toLocaleString(
+                                                    "fr-FR"
+                                                )
+                                                : "N/A"}
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                {/* ================================= */}
+                                {/* ACTIONS */}
+                                {/* ================================= */}
+
+                                <div className="admin-user-actions">
+
+                                    {/* ROLE */}
+
+                                    <div className="role-control">
+
+                                        <label>
+                                            RÃ´le
+                                        </label>
+
+                                        <select
+                                            value={userRole}
+                                            disabled={isBusy}
+                                            onChange={(e) =>
+                                                changeRole(
+                                                    user.id,
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
+
+                                            {roles.map(
+                                                (role) => (
+                                                    <option
+                                                        key={role}
+                                                        value={role}
+                                                    >
+                                                        {role}
+                                                    </option>
+                                                )
+                                            )}
+
+                                        </select>
+
+                                        {isUpdating && (
+                                            <small>
+                                                â³ Modification...
+                                            </small>
+                                        )}
+
+                                    </div>
+
+                                    {/* DELETE */}
+
+                                    <button
+                                        type="button"
+                                        className="delete-user-button"
+                                        onClick={() =>
+                                            deleteUser(
+                                                user.id,
+                                                user.username
+                                            )
+                                        }
+                                        disabled={isBusy}
+                                    >
+                                        {isDeleting
+                                            ? "â³ Suppression..."
+                                            : "ðŸ—‘ï¸ Supprimer"}
+                                    </button>
+
+                                </div>
+
+                            </article>
+                        );
+                    })
+
+                )}
+
+            </div>
+
+            {/* ================================================= */}
+            {/* PAGINATION */}
+            {/* ================================================= */}
+
+            {filteredUsers.length > 0 && (
+                <div className="admin-pagination">
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            goToPage(
+                                currentPage - 1
+                            )
+                        }
+                        disabled={
+                            currentPage === 1
+                        }
+                    >
+                        â† PrÃ©cÃ©dent
+                    </button>
+
+                    <div className="pagination-pages">
+
+                        {Array.from(
+                            {
+                                length: totalPages,
+                            },
+                            (_, index) => {
+
+                                const page =
+                                    index + 1;
+
+                                return (
+                                    <button
+                                        type="button"
+                                        key={page}
+                                        className={
+                                            currentPage ===
+                                            page
+                                                ? "active"
+                                                : ""
+                                        }
+                                        onClick={() =>
+                                            goToPage(
+                                                page
+                                            )
+                                        }
+                                    >
+                                        {page}
+                                    </button>
+                                );
+                            }
+                        )}
+
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            goToPage(
+                                currentPage + 1
+                            )
+                        }
+                        disabled={
+                            currentPage ===
+                            totalPages
+                        }
+                    >
+                        Suivant â†’
+                    </button>
+
+                </div>
+            )}
+
+            {/* ================================================= */}
+            {/* PAGE INFO */}
+            {/* ================================================= */}
+
+            {filteredUsers.length > 0 && (
+                <div className="admin-pagination-info">
+
+                    Affichage de{" "}
+
+                    <strong>
+                        {startIndex + 1}
+                    </strong>{" "}
+
+                    Ã {" "}
+
+                    <strong>
+                        {Math.min(
+                            startIndex +
+                            usersPerPage,
+                            filteredUsers.length
+                        )}
+                    </strong>{" "}
+
+                    sur{" "}
+
+                    <strong>
+                        {filteredUsers.length}
+                    </strong>{" "}
+
+                    utilisateurs
+
+                </div>
+            )}
+
+        </main>
+    );
+}
+
+export default AdminUsers;
